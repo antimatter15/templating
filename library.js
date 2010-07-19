@@ -22,6 +22,23 @@
     @/
     
   </ul>
+  
+  
+  Innovation?
+  
+  
+  @block:participantlist
+    @expanded?
+      @participants.join(',')
+    @else
+      @{participants.slice(0,2).join(',')}
+    @/
+  @/
+  
+  @participantlist()
+  
+  <a href="#" onclick="@participantlist"></a>
+  
 
   Documentation:
     Code is prefixed with an @. \@ can be used to add an @ without triggering the code
@@ -51,8 +68,8 @@
 
 
 function template(vars, str){
-  str = str.replace(/([^\\]|^)@(\w+\(.*?\))/,'$1@{$2}');
-  str = str.replace(/([^\\]|^)@(.+?)\;?([\s])/g,'$1@{$2}$3'); //"//
+  str = str.replace(/([^\\]|^)@([\w\.]+\(.*?\))/,'$1@{$2}'); //for cases like blah('234', 544, argh)
+  str = str.replace(/([^\\]|^)@(.+?)\;?([\s])/g,'$1@{$2}$3'); //"//for general @blah+meh[whitespace]
   str = str.replace(/'/g, "\\'") //"// fix bespin's syntax highlighting
         .replace(/\n/,'\\n') //escape newlines
         .replace(/\\@/g, '@'); //when using \@ to skip the parser, get rid of the leftovers
