@@ -116,4 +116,38 @@ So now that I've demonstrated there's nothing interesting about this solution, g
 leave this document before I explain to you something that's utterly useless and that you
 shouldn't use.
 
+Probably the most distinguishing feature is something I call blocks. That's probably a really
+really bad name and it probably will get people confused with other things, but as the name of
+this library is "templating" I can't imagine anyone who didn't find this expected. I haven't
+even hung around the guys who make Prototype or Closure.
 
+So. Blocks. They're an okay-ish feature that allows for event-based updates of certain sections
+of the template after the initial rendering. It's a feature that doesn't even belong as part
+of the templating engine, so it sort of isn't. It's part of the execute() function, which doesn't
+really count as the templating engine. That's the function which takes your variables and code
+sticks it through templating, and evals() the result. It also handles blocks.
+
+    @time.span{{{ //har har har i love puns
+      It is now @format_time(+new Date)
+    }}}
+
+    @{
+      setInterval(function(){time()},1000)
+      ''
+    }
+
+Here we see a block being created, and a piece of attached js which updates the block every second.
+But blocks can also have triggers that aren't just timeouts and other boring stuff.
+
+    <a href="#update_time" onclick="@{{{
+      time();
+    }}};return false">Update the time</a>
+
+The way blocks work are pretty simple. It basically creates a function out of the compiled template
+and then it associates it with a function in the scope of the template. It wraps a <div> or <span>
+(based on whether the block name ends with .span or .div or .bacon) and gives it an ID of a random
+number. This random number is stored in the scope of the template.
+
+When the associated update function is called, it looks up the associated ID number and tries to do
+a document.getElementById and re-executes the template in the previous scope and then replaces the
+innerHTML.
