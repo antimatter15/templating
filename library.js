@@ -73,18 +73,22 @@ function execute(vars, str){
   //allows code to be attached to a event such as onclick which fires
   //within the scope of the vars object and can trigger a block reload
   //which is described in further detail below
-  str = str.replace(/@\{\{\{(.+)\}\}\}/g, function(a, code){
+  str = str.replace(/\n/g,'\\n');
+  
+  str = str.replace(/\@\{\{\{(.+?)\}\}\}/g, function(a, code){
     //TODO: fix memory leaking issues with this system
     var id = '_template_'+Math.random().toString(36).substr(2,6);
-    window[id] = function(e){
-      e = e || window.event;
+    code = code.replace(/\\n/g,'\n');
+    window[id] = function(){
       //hopefully execution is bound to this closure
       with(vars){
+        console.log(code)
         eval(code);
       }
     }
-    return 'window.'+id+'(e)';
+    return 'window.'+id+'()';
   });
+  console.log(str.replace(/\\n/g,'\n'));
   
   //blocks are templated sections of code which are inside elements such
   //as spans and divs. They add functions to the vars object which can be
@@ -92,12 +96,15 @@ function execute(vars, str){
   //the executed code could change the state of vars and use that to
   //do something magical like toggle a state and have it rendered differently
   //and do a live update of the view
-  str = str.replace(/@([\w\.])\{\{\{(.+)\}\}\}/g, function(a, blockprefs, blocktemplate){
+  str = str.replace(/\@([\w\.]+)\{\{\{(.+?)\}\}\}/g, function(a, blockprefs, blocktemplate){
     blockprefs = blockprefs.split('.');
     var blockname = blockprefs[0], blocktag = blockprefs[1] || 'div';
     var id = blockname+'_'+Math.random().toString(36).substr(2,4);
     var html = '<'+blocktag+' id="'+id+'">'+blocktemplate+'<'+'/'+blocktag+'>';
+    html = html.replace(/\\n/g,'\n');
+    console.log(html);
     var jsc = '(function(vars){with(vars){'+template(html)+';return _doc.join("");};})';
+    console.log(jsc);
     var jsf = eval(jsc); //jsf is a function which returns the executed template
     
     vars[blockname] = function(){//re-render stuffs;
@@ -108,11 +115,13 @@ function execute(vars, str){
         //oh noes it hasn't been appended to the document
         //or it's been removed, that means we can't do anything
       }
-    }
+    };
     vars[blockname].el = id;
+    console.log('yaaaay');
     return jsf(vars);
   });
   
+  console.log(str.replace(/\\n/g,'\n'));
   
   var jsc = '(function(vars){with(vars){'+template(str)+';return _doc.join("");};})';
   var jsf = eval(jsc); //jsf is a function which returns the executed template
@@ -121,16 +130,18 @@ function execute(vars, str){
 
 
 function template(str){
-  str = str.replace(/([^\\]|^)@([\w\.]+\(.*?\))/,'$1@{$2}'); //for cases like blah('234', 544, argh)
-  str = str.replace(/([^\\]|^)@(.+?)\;?([\s])/g,'$1@{$2}$3'); //"//for general @blah+meh[whitespace]
+  str = str.replace(/([^\\]|^)@([^\{][\w\.]*\(.*?\))/,'$1@{$2}'); //for cases like blah('234', 544, argh)
+  str = str.replace(/([^\\]|^)@([^\{].*?)\;?([\s])/g,'$1@{$2}$3'); //"//for general @blah+meh[whitespace]
   str = str.replace(/'/g, "\\'") //"// fix bespin's syntax highlighting
-        .replace(/\n/,'\\n') //escape newlines
+        .replace(/\n/g,'\\n') //escape newlines
         .replace(/\\@/g, '@'); //when using \@ to skip the parser, get rid of the leftovers
-  console.log(str);
+  console.log('core',str.replace(/\\n/g,'\n'));
   
   return ("function _get_keys(e){var _k=[];if(e.length)for(var l=e.length;l--;)_k.push(l);else for(var i in e)_k.push(i);return _k};"+
         "var _doc=[],_vars={};with(_vars){_doc.push('"+str.replace(/([^\\]|^)@\{(.*?)\}/g, 
           function(all, prefix, body){
+    body = body.replace(/\\'/g,"'");
+    console.log(body);
     if(body == 'end' || body.charAt(0) == '/') body = '}';
     else if(/^each\(/.test(body)){
       body = body.replace(/^each\((.*?)(,(\w+))?(,(\w+))?\)\s*$/,
