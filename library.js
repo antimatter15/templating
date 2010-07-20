@@ -137,25 +137,46 @@ function template(str){
         .replace(/\\@/g, '@'); //when using \@ to skip the parser, get rid of the leftovers
   console.log('core',str.replace(/\\n/g,'\n'));
   
+  var re = /([^@])(\{[^\{]*?\})/g, map = {};
+  while(re.test(str)){
+    str = str.replace(re, function(all, prefix, body){
+      var id = '[['+Math.random().toString(36).substr(2,5)+']]';
+      map[id] = body;
+      console.log(body);
+      return prefix+id;
+    })
+  }
+  
+  
+  function re_map(str){
+    return str.replace(/\[\[(\w{5})\]\]/g, function(all){
+      return (map[all]?re_map(map[all]):all)
+    })
+  }
+  
   return ("function _get_keys(e){var _k=[];if(e.length)for(var l=e.length;l--;)_k.push(l);else for(var i in e)_k.push(i);return _k};"+
-        "var _doc=[],_vars={};with(_vars){_doc.push('"+str.replace(/([^\\]|^)@\{(.*?)\}/g, 
+        "var _doc=[],_vars={};with(_vars){\n_doc.push('"+str.replace(/([^\\]|^)@\{(.*?)\}/g, 
           function(all, prefix, body){
+    body = re_map(body);
     body = body.replace(/\\'/g,"'")
           .replace(/\\n/g,"\n");
     console.log(body);
     if(body == 'end' || body.charAt(0) == '/') body = '}';
     else if(/^each\(/.test(body)){
       body = body.replace(/^each\((.*?)(,(\w+))?(,(\w+))?\)\s*$/,
-        'var _obj=$1,_keys=_get_keys(_obj),_i=_keys.length,_key,_val;'+
-        'for(;_i--;){_key=_vars["$5"]=_keys[_i];_val=_vars["$3"]=_obj[_key];');
+        '\nvar _obj=$1,_keys=_get_keys(_obj),_i=_keys.length,_key,_val;'+
+        'for(;_i--;){_key=_vars["$5"]=_keys[_i];_val=_vars["$3"]=_obj[_key];\n');
     }else if(/^if\(/.test(body) || /\?$/.test(body)){
       body = body.replace(/^if\((.*)(,(\w+))?\)\s*$/,'if(_vars._ifval=_vars["$2"||"_ifval"]=$1){')
       body = body.replace(/(.*)\?$/,'if(_vars._ifval=$1){')
     }else if(/^else/.test(body)){
       body = '}else{'
     }else{
-      body = "_doc.push("+ body + ");"
+      var lines = body.replace(/^\s+|\s+$/g,"").split('\n');
+      body = lines.slice(0,-1).join('\n') 
+            + "\n_doc.push("+ lines.slice(-1)[0].replace('return','') + ")"
+      
     }
-    return prefix + "');" + body + ";_doc.push('";
+    return prefix + "');\n" + body + ";\n_doc.push('";
   })+"');};").replace(/_doc\.push\(\'\'\);/g, ""); //'
 }

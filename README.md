@@ -16,3 +16,11 @@ because it's really not.
   
 However, I feel compelled to do something utterly non-innovative or
 useful because everyone loves the NIH (Not Invented Here) syndrome.
+
+
+Code is prefixed by the @ symbol, similar to Microsoft's WebMatrix
+Razor stuff. It's not modeled after Razor, but I just felt like using
+the @ symbol too. Or that microsoft planted an inception.
+
+Blocks are like this:
+    @{+new Date}
