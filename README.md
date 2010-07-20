@@ -91,7 +91,8 @@ And if you don't feel like doing JS stuff, you can also do some neat things like
     @end
     
 Here you can see that there are two ways to start an if. You can postfix it with a ? or you 
-can start it with if()
+can start it with if(condition). This probably won't ever be useful, but the latest if value
+gets saved to the @_ifval value.
 
 There are also two ways of ending a block. You can @end or @/. Both are the same, but one's shorter.
 
@@ -103,6 +104,14 @@ What about looping arrays and objects? It can do that too.
     
     @each(pets, name, index)
       Aww, look at how cute @name is! He is my @index+1;'th pet
+    @/
+
+    @each(new Array(50)) SPAM @end
+
+    @each(users, password, username) The password of @username is @password @/
+
+Note that the loop terminators are the same as the if terminators. Neat isn't it.
+
 So now that I've demonstrated there's nothing interesting about this solution, go on and 
 leave this document before I explain to you something that's utterly useless and that you
 shouldn't use.
