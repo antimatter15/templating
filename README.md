@@ -150,4 +150,7 @@ number. This random number is stored in the scope of the template.
 
 When the associated update function is called, it looks up the associated ID number and tries to do
 a document.getElementById and re-executes the template in the previous scope and then replaces the
-innerHTML.
+innerHTML. Basically enabling live templates.
+
+Its all 3KB before gzip (minified). Not that bad, but still, compared to fifty four bytes in the
+code from the introduction, it's huuge. 
