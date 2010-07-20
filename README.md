@@ -154,3 +154,7 @@ innerHTML. Basically enabling live templates.
 
 Its all 3KB before gzip (minified). Not that bad, but still, compared to fifty four bytes in the
 code from the introduction, it's huuge. 
+
+Possible changes:
+* name.el_id.interval{{{ }}} block notation for auto updating chronologically. Probably useful for the
+twitter/facebook style real-time relative dates.
