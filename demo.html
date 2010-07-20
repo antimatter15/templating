@@ -1,0 +1,23 @@
+<div id="testing">start
+@participant_list{{{
+  @expanded?
+    @participants.join(', ')
+    <a href="#fewer" onclick="@{{{
+      expanded = false;
+      participant_list();
+    }}};return false"> (fewer)</a>
+  @else
+    @{participants.slice(0,2).join(', ')}
+    <a href="#more" onclick="@{{{
+      expanded = true;
+      participant_list();
+    }}};return false"> (more)</a>
+  @/
+}}}
+  end
+</div>
+<script src="library.js"></script>
+<script>
+  var el = document.getElementById('testing');
+  el.innerHTML = execute({expanded: false, participants: ['Bob', 'Alice', 'Eve', 'Jill', 'John']}, el.innerHTML);
+</script>
