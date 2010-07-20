@@ -7,7 +7,9 @@
       participant_list();
     }}};return false"> (fewer)</a>
   @else
-    @{participants.slice(0,2).join(', ')}
+    @{
+      participants.slice(0,2).join(', ')
+    }
     <a href="#more" onclick="@{{{
       expanded = true;
       participant_list();
@@ -20,4 +22,38 @@
 <script>
   var el = document.getElementById('testing');
   el.innerHTML = execute({expanded: false, participants: ['Bob', 'Alice', 'Eve', 'Jill', 'John']}, el.innerHTML);
+  
+  
+  
+  setTimeout(function(){
+test = "asdf @{\n"+
+"  while(true){\n"+
+"    participants.slice(0,2).join(', ')\nif(true){\nalert('hi');\n};"+
+"  }\n} werwe";
+
+console.log(test);
+  var re = /([^@])(\{[^\{]*?\})/g, map = {};
+  while(re.test(test)){
+    test = test.replace(re, function(all, prefix, body){
+      var id = '[['+Math.random().toString(36).substr(2,5)+']]';
+      map[id] = body;
+      console.log(body);
+      return prefix+id;
+    })
+  }
+  
+  
+  function re_map(str){
+    return str.replace(/\[\[(\w{5})\]\]/g, function(all){
+      return (map[all]?re_map(map[all]):all)
+    })
+  }
+  
+  console.log(test);
+  test = test.replace(/\@\{([^\}]*?)\}/g, function(all, body){
+    body = re_map(body);
+    console.log(body);
+    return 'yaynes';
+  })
+  },100);
 </script>

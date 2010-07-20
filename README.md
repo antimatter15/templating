@@ -11,8 +11,8 @@ This is, of course, totally un-unique or innovative in any imaginable
 way. I won't bore you with concepts like "lightest and smallest ever"
 because it's really not.
 
-  //this might be close
-  .replace(/\{(.*)\}/g,function(a,b){return eval(b)})
+    //this might be close
+    .replace(/\{(.*)\}/g,function(a,b){return eval(b)})
   
 However, I feel compelled to do something utterly non-innovative or
 useful because everyone loves the NIH (Not Invented Here) syndrome.

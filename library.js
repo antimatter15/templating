@@ -140,7 +140,8 @@ function template(str){
   return ("function _get_keys(e){var _k=[];if(e.length)for(var l=e.length;l--;)_k.push(l);else for(var i in e)_k.push(i);return _k};"+
         "var _doc=[],_vars={};with(_vars){_doc.push('"+str.replace(/([^\\]|^)@\{(.*?)\}/g, 
           function(all, prefix, body){
-    body = body.replace(/\\'/g,"'");
+    body = body.replace(/\\'/g,"'")
+          .replace(/\\n/g,"\n");
     console.log(body);
     if(body == 'end' || body.charAt(0) == '/') body = '}';
     else if(/^each\(/.test(body)){
