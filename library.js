@@ -27,17 +27,18 @@
   Innovation?
   
   
-  @block:participantlist
+  @block{{{
     @expanded?
       @participants.join(',')
     @else
       @{participants.slice(0,2).join(',')}
     @/
-  @/
+  }}}
   
-  @participantlist()
-  
-  <a href="#" onclick="@participantlist"></a>
+  <a href="#" onclick="@{{{
+    vars.expanded = true;
+    block();
+  }}}"></a>
   
 
   Documentation:
@@ -67,7 +68,59 @@
 */
 
 
-function template(vars, str){
+function execute(vars, str){
+  //support dynamic code execution: Key for the block templates feature
+  //allows code to be attached to a event such as onclick which fires
+  //within the scope of the vars object and can trigger a block reload
+  //which is described in further detail below
+  str = str.replace(/@\{\{\{(.+)\}\}\}/g, function(a, code){
+    //TODO: fix memory leaking issues with this system
+    var id = '_template_'+Math.random().toString(36).substr(2,6);
+    window[id] = function(e){
+      e = e || window.event;
+      //hopefully execution is bound to this closure
+      with(vars){
+        eval(code);
+      }
+    }
+    return 'window.'+id+'(e)';
+  });
+  
+  //blocks are templated sections of code which are inside elements such
+  //as spans and divs. They add functions to the vars object which can be
+  //called from the dynamic code execution feature to reload a block.
+  //the executed code could change the state of vars and use that to
+  //do something magical like toggle a state and have it rendered differently
+  //and do a live update of the view
+  str = str.replace(/@([\w\.])\{\{\{(.+)\}\}\}/g, function(a, blockprefs, blocktemplate){
+    blockprefs = blockprefs.split('.');
+    var blockname = blockprefs[0], blocktag = blockprefs[1] || 'div';
+    var id = blockname+'_'+Math.random().toString(36).substr(2,4);
+    var html = '<'+blocktag+' id="'+id+'">'+blocktemplate+'<'+'/'+blocktag+'>';
+    var jsc = '(function(vars){with(vars){'+template(html)+';return _doc.join("");};})';
+    var jsf = eval(jsc); //jsf is a function which returns the executed template
+    
+    vars[blockname] = function(){//re-render stuffs;
+      var el = document.getElementById(id);
+      if(el){
+        el.innerHTML = jsf(vars);
+      }else{
+        //oh noes it hasn't been appended to the document
+        //or it's been removed, that means we can't do anything
+      }
+    }
+    vars[blockname].el = id;
+    return jsf(vars);
+  });
+  
+  
+  var jsc = '(function(vars){with(vars){'+template(str)+';return _doc.join("");};})';
+  var jsf = eval(jsc); //jsf is a function which returns the executed template
+  return jsf(vars);
+}
+
+
+function template(str){
   str = str.replace(/([^\\]|^)@([\w\.]+\(.*?\))/,'$1@{$2}'); //for cases like blah('234', 544, argh)
   str = str.replace(/([^\\]|^)@(.+?)\;?([\s])/g,'$1@{$2}$3'); //"//for general @blah+meh[whitespace]
   str = str.replace(/'/g, "\\'") //"// fix bespin's syntax highlighting
