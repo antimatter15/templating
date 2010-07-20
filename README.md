@@ -61,6 +61,8 @@ shorthand notation.
     @name="bob" //interpreted as @{name="bob"}
     @explosive?'run':'poke' //interpreted as @{explosive?'run':'poke'}
     
+If you don't want to end it with space, you can also end one with a semicolon;
+
 Basically, it scans starting from an @ sign (unless the character immediately
 before is a \ which causes it to remove the \ and not parse the @). It includes
 everything until it encounters a whitespace character.
@@ -75,3 +77,34 @@ However, like any rule, there are exceptions.
 Note that the last three examples demonstrate a sort of unexpected behavior. The function
 call pattern takes precedence over the include-until-whitespace behavior, because I dont
 really feel bothered by it and don't feel like fixing it.
+
+And if you don't feel like doing JS stuff, you can also do some neat things like ifs and loops
+
+    @explosive?
+      OH NOES! <strong>RUUUNNN</strong>
+    @else
+      Well, i guess it's safe. <em>let's poke it!</em>
+    @/
+    
+    @if(boom)
+      No comment.
+    @end
+    
+Here you can see that there are two ways to start an if. You can postfix it with a ? or you 
+can start it with if()
+
+There are also two ways of ending a block. You can @end or @/. Both are the same, but one's shorter.
+
+What about looping arrays and objects? It can do that too.
+
+    @each(numbers, number)
+      @number is a magical number, presumably a real number.
+    @/
+    
+    @each(pets, name, index)
+      Aww, look at how cute @name is! He is my @index+1;'th pet
+So now that I've demonstrated there's nothing interesting about this solution, go on and 
+leave this document before I explain to you something that's utterly useless and that you
+shouldn't use.
+
+
